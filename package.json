@@ -1,0 +1,25 @@
+{
+  "name": "ODL",
+  "displayName": "ODL",
+  "description": "ODL Plugin",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.107.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "ODL",
+      "aliases": ["ODL", "ODL"],
+      "extensions": [".odl",".odl.uc"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "ODL",
+      "scopeName": "ip-manager.odl",
+      "path": "./syntaxes/ODL.tmLanguage.json"
+    }]
+  }
+}
