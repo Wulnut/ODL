@@ -1,0 +1,41 @@
+%define {
+    select 'Services.VoiceService'{
+
+        %persistent object CodecProfile[]{ 
+
+            counted with CodecProfileNumberOfEntries;
+
+            %persistent bool Enable{ 
+                default true;
+            }
+
+            %persistent %unique %key string Alias{
+                on action validate call check_maximum_length 64;
+            }
+
+            %persistent %read-only string Codec{
+                default "";
+                on action validate call check_maximum_length 256;
+            }
+
+
+            %persistent string PacketizationPeriod{
+                default "20";
+            }
+
+            %persistent bool SilenceSuppression{ 
+                default false;
+            }
+        }
+    }
+}
+
+%populate {
+    on event "dm:object-changed" call param_bool_changed
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.CodecProfile\.[0-9]+\.$" &&
+        (contains("parameters.SilenceSuppression"))';
+
+    on event "dm:object-changed" call param_str_changed
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.CodecProfile\.[0-9]+\.$" &&
+        (contains("parameters.PacketizationPeriod"))';
+}

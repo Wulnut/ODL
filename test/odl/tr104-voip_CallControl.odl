@@ -1,0 +1,643 @@
+%define {
+    select 'Services.VoiceService'{
+
+        %persistent object CallControl{ 
+
+            uint32 MaxNumberOfLines;
+
+            uint32 MaxNumberOfExtensions;
+
+            %persistent object Line[]{
+
+                counted with LineNumberOfEntries;
+
+                %persistent bool Enable{ 
+                    default false;
+                }
+
+                bool QuiescentMode;
+
+                %read-only string Status{
+                    default "Disabled";
+                    on action validate call check_enum ["Up", "Error", "Testing", "Quiescent", "Disabled"];
+                }
+
+                %persistent %unique %key string Alias{
+                    on action validate call check_maximum_length 64;
+                }
+
+                %read-only string CallStatus{
+                    default "Idle";
+                    on action validate call check_enum ["Idle", "Dialing", "Delivered", "Connected", "Alerting", "Disconnected"];
+                }
+
+                %read-only string Origin{
+                    default "Static";
+                    on action validate call check_enum ["Static", "DDIRange"];
+                }
+
+                %persistent string DirectoryNumber{
+                    default "";
+                    on action validate call check_maximum_length 32;
+                }
+
+                %persistent string Provider{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+
+                string CallingFeatures{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+
+                %persistent %read-only object Stats{
+
+                    %read-only object IncomingCalls{
+
+                        %read-only uint32 CallsReceived;
+
+                        %read-only uint32 CallsConnected;
+
+                        %read-only uint32 CallsFailed;
+
+                        %read-only uint32 CallsDropped;
+
+                        %read-only uint32 TotalCallTime;
+                    }
+
+                    %read-only object OutgoingCalls{
+
+                        %read-only uint32 CallsAttempted;
+
+                        %read-only uint32 CallsConnected;
+
+                        %read-only uint32 CallsFailed;
+
+                        %read-only uint32 CallsDropped;
+
+                        %read-only uint32 TotalCallTime;
+                    }
+
+                    %read-only object RTP{
+
+                        %read-only uint32 PacketsReceived;
+
+                        %read-only uint32 PacketsSent;
+
+                        %read-only uint32 PacketsLost;
+
+                        %read-only uint32 BytesSent;
+
+                        %read-only uint32 BytesReceived;
+                    }
+
+                    %read-only object DSP{
+
+                        %read-only uint32 Overruns;
+
+                        %read-only uint32 Underruns;
+                    }
+                }
+            }
+            
+            %persistent object Extension[]{
+
+                counted with ExtensionNumberOfEntries;
+
+                bool Enable{ 
+                    default false;
+                }
+
+                bool QuiescentMode;
+
+                %read-only string Status{
+                    default "Disabled";
+                    on action validate call check_enum ["Up", "Initializing", "Error", "Testing", "Quiescent", "Disabled"];
+                }
+
+                %persistent %unique %key string Alias{
+                    on action validate call check_maximum_length 64;
+                }
+
+                %read-only string CallStatus{
+                    default "Idle";
+                    on action validate call check_enum ["Idle", "Dialing", "Delivered", "Connected", "Alerting", "Disconnected"];
+                }
+
+                %read-only string Origin{
+                    default "Static";
+                    on action validate call check_enum ["AutoConfigured", "Static"];
+                }
+
+                string Name{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+
+                string ExtensionNumber{
+                    default "";
+                    on action validate call check_maximum_length 32;
+                }
+
+                string Provider{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+
+                string NumberingPlan{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+
+                string CallingFeatures{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+
+                %read-only string CallWaitingStatus{
+                    default "Disabled";
+                    on action validate call check_enum ["Disabled", "Idle", "SecondaryRinging", "SecondaryConnecting", "SecondaryConnected"];
+                }
+
+                %read-only string ConferenceCallingStatus{
+                    default "Disabled";
+                    on action validate call check_enum ["Disabled", "Idle", "SecondaryRinging", "SecondaryConnecting", "InConferenceCall"];
+                }
+
+                %read-only uint32 ConferenceCallingSessionCount;
+
+                string VoiceMail{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+
+                %persistent %read-only object Stats{
+
+                    %persistent %read-only object IncomingCalls{
+
+                        %read-only uint32 CallsReceived;
+
+                        %read-only uint32 CallsConnected;
+
+                        %read-only uint32 CallsFailed;
+
+                        %read-only uint32 CallsDropped;
+
+                        %read-only uint32 TotalCallTime;
+                    }
+
+                    %persistent %read-only object OutgoingCalls{
+
+                        %read-only uint32 CallsAttempted;
+
+                        %read-only uint32 CallsConnected;
+
+                        %read-only uint32 CallsFailed;
+
+                        %read-only uint32 CallsDropped;
+
+                        %read-only uint32 TotalCallTime;
+                    }
+
+                    %persistent %read-only object RTP{
+
+                        %read-only uint32 PacketsReceived;
+
+                        %read-only uint32 PacketsSent;
+
+                        %read-only uint32 PacketsLost;
+
+                        %read-only uint32 BytesSent;
+
+                        %read-only uint32 BytesReceived;
+                    }
+
+                    %persistent %read-only object DSP{
+
+                        %read-only uint32 Overruns;
+
+                        %read-only uint32 Underruns;
+                    }
+                }
+            }
+
+            %persistent object Group[]{
+
+                counted with GroupNumberOfEntries;
+
+                %persistent %unique %key string Alias{
+                    on action validate call check_maximum_length 64;
+                }
+
+                string Extensions;
+
+                string CallWaitingStatus{
+                    default "Simultaneous";
+                    on action validate call check_enum ["Simultaneous", "Hierarchical", "Cyclic"];
+                }
+
+                string RingTimeout;
+            }
+
+
+            %persistent object Mailbox[]{
+
+                counted with MailboxNumberOfEntries;
+
+                bool Enable{ 
+                    default false;
+                }
+
+                %persistent %unique %key string Alias{
+                    on action validate call check_maximum_length 64;
+                }
+                
+                uint32 MaxMsg; 
+
+                uint32 MaxMessageTime; 
+
+                uint32 MinSize; 
+
+                string SMTPServerAddress{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+
+                uint32 SMTPServerPort{
+                    default 25;
+                    on action validate call check_range {min = 0, max = 65535};
+                }
+
+                string SMTPUser{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+
+                string SMTPPassword{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+
+                string SMTPAuthenticationType{
+                    default "None";
+                    on action validate call check_enum ["None", "SSL", "TLS", "Auto"];
+                }
+
+                string SMTPFrom{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+            }
+
+            %persistent object IncomingMap[]{
+
+                counted with IncomingMapNumberOfEntries;
+
+                bool Enable{ 
+                    default false;
+                }
+
+                %persistent %unique %key string Alias{
+                    on action validate call check_maximum_length 64;
+                }
+
+                string Line{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+                string Extension{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+
+                uint32 Order{
+                    default 1;
+                    on action validate call check_minimum 1;
+                }
+
+                uint32 Timeout;
+            }
+
+            %persistent object OutgoingMap[]{
+
+                counted with OutgoingMapNumberOfEntries;
+
+                bool Enable{ 
+                    default false;
+                }
+
+                %persistent %unique %key string Alias{
+                    on action validate call check_maximum_length 64;
+                }
+
+                string CLIPNoScreeningNumber{
+                    default "";
+                    on action validate call check_maximum_length 32;
+                }
+
+                string Extension{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+
+                string Line{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+
+                uint32 Order{
+                    default 1;
+                    on action validate call check_minimum 1;
+                }
+            }
+
+            %persistent object NumberingPlan[]{
+                
+                counted with NumberingPlanNumberOfEntries;
+
+                %persistent %unique %key string Alias{
+                    on action validate call check_maximum_length 64;
+                }
+
+                uint32 MinimumNumberOfDigits{
+                    default 1;
+                    on action validate call check_range {min = 1, max = 32};
+                }
+
+                uint32 MaximumNumberOfDigits{
+                    default 15;
+                    on action validate call check_range {min = 1, max = 32};
+                }
+
+                uint32 InterDigitTimerStd{
+                    default 5000;
+                    on action validate call check_range {min = 1, max = 50000};
+                }
+
+                uint32 InterDigitTimerOpen{
+                    default 3000;
+                    on action validate call check_range {min = 1, max = 50000};
+                }
+
+                string TerminationDigit{
+                    default "#";
+                    on action validate call check_maximum_length 1;
+                }
+
+                string InvalidNumberTone{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+
+                uint32 PrefixInfoMaxEntries;
+
+                %persistent object PrefixInfo[]{
+
+                    counted with PrefixInfoNumberOfEntries;
+
+                    %persistent %unique %key string Alias{
+                        on action validate call check_maximum_length 64;
+                    }
+
+                    bool Enable{ 
+                        default false;
+                    }
+
+                    string PrefixRange{
+                        default "";
+                        on action validate call check_maximum_length 42;
+                    }
+
+                    uint32 PrefixMinNumberOfDigits{
+                        default 1;
+                        on action validate call check_range {min = 1, max = 40};
+                    }
+
+                    uint32 PrefixMaxNumberOfDigits{
+                        default 1;
+                        on action validate call check_range {min = 1, max = 40};
+                    }
+
+                    uint32 NumberOfDigitsToRemove{
+                        default 0;
+                        on action validate call check_range {min = 0, max = 40};
+                    }
+
+                    uint32 PosOfDigitsToRemove{
+                        default 0;
+                        on action validate call check_range {min = 0, max = 40};
+                    }
+
+                    string DialTone{
+                        default "";
+                        on action validate call check_maximum_length 256;
+                    }
+
+                    string FacilityAction{
+                        default "";
+                        on action validate call check_maximum_length 64;
+                    }
+
+                    string FacilityActionArgument{
+                        default "";
+                        on action validate call check_maximum_length 256;
+                    }
+                }
+            }
+
+            %persistent object CallingFeatures{
+
+                %persistent object Set[]{
+
+                    counted with SetNumberOfEntries;
+
+                    %persistent %unique %key string Alias{
+                        on action validate call check_maximum_length 64;
+                    }
+
+                    bool CallerIDEnable{
+                        default true;
+                    }
+
+                    bool CallerIDNameEnable;
+
+                    %persistent bool CallWaitingEnable{
+                        default true;
+                    }
+
+                    bool CallForwardUnconditionalEnable;
+
+                    string CallForwardUnconditionalNumber{
+                        default "";
+                        on action validate call check_maximum_length 32;
+                    }
+
+                    bool CallForwardOnBusyEnable;
+
+                    string CallForwardOnBusyNumber{
+                        default "";
+                        on action validate call check_maximum_length 32;
+                    }
+
+                    uint32 CallForwardOnBusyRingTimeout;
+
+                    bool CallForwardOnNoAnswerEnable;
+
+                    string CallForwardOnNoAnswerNumber{
+                        default "";
+                        on action validate call check_maximum_length 32;
+                    }
+
+                    uint32 CallForwardOnNoAnswerRingTimeout;
+
+                    bool CallTransferEnable;
+
+                    bool MWIEnable;
+
+                    bool VMWIEnable;
+
+                    %read-only uint32 LineMessagesWaiting;
+
+                    bool AnonymousCallRejectionEnable;
+
+                    bool AnonymousCallEnable;
+
+                    bool DoNotDisturbEnable;
+
+                    bool RepeatDialEnable;
+
+                    bool VoiceMailEnable;
+
+                    bool CallPickUpEnable;
+
+                    bool CCBSEnable;
+
+                    bool IIFCEnable;
+
+                    bool BlockForwardEnable;
+
+                    bool SecretForwarderEnable;
+
+                    bool FollowMeEnable;
+
+
+                    %persistent object CFT[]{
+
+                        counted with CFTNumberOfEntries;
+
+                        bool Enable;
+
+                        %persistent %unique %key string Alias{
+                            on action validate call check_maximum_length 64;
+                        }
+
+                        string Day{
+                            default "All";
+                            on action validate call check_enum ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "All"];
+                        }
+
+                        string StartTime{
+                            default "";
+                            on action validate call check_maximum_length 5;
+                        }
+
+                        string EndTime{
+                            default "";
+                            on action validate call check_maximum_length 5;
+                        }
+
+                        string ForwardedToNumber{
+                            default "";
+                            on action validate call check_maximum_length 32;
+                        }
+                    }
+
+                    %persistent object SCF[]{
+
+                        counted with SCFNumberOfEntries;
+
+                        bool Enable{ 
+                            default false;
+                        }
+
+                        %persistent %unique %key string Alias{
+                            on action validate call check_maximum_length 64;
+                        }
+
+                        string CallingNumber{
+                            on action validate call check_maximum_length 32;
+                        }
+
+                        string ForwardedToNumber{
+                            on action validate call check_maximum_length 32;
+                        }
+                    }
+
+                    %persistent object SCREJ[]{
+
+                        counted with SCREJNumberOfEntries;
+
+                        bool Enable{ 
+                            default false;
+                        }
+
+                        %persistent %unique %key string Alias{
+                            on action validate call check_maximum_length 64;
+                        }
+
+                        string CallingNumber{
+                            default "";
+                            on action validate call check_maximum_length 32;
+                        }
+                    }
+
+                    %persistent object FollowMe[]{
+
+                        counted with FollowMeNumberOfEntries;
+
+                        bool Enable{ 
+                            default false;
+                        }
+
+                        %persistent %unique %key string Alias{
+                            on action validate call check_maximum_length 64;
+                        }
+
+                        uint32 Delay;
+
+                        string Number{
+                            default "";
+                            on action validate call check_maximum_length 32;
+                        }
+
+                        uint32 Order;
+                    }
+
+                    %persistent %read-only object Voice2Mail{
+
+                        bool Enable;
+
+                        uint32 MaxMessageLength;
+
+                        bool Attach;
+
+                        bool KeepLocal;
+
+                        string EMailAddress;
+                    }
+                }
+            }
+        }
+    }
+}
+
+%populate {
+    on event "dm:object-changed" call param_uint_changed
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.CallControl\.NumberingPlan\.[0-9]+\.$" &&
+        (contains("parameters.InterDigitTimerStd"))';
+
+    on event "dm:object-changed" call param_bool_changed
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.CallControl\.CallingFeatures\.Set\.[0-9]+\.$" &&
+        (contains("parameters.CallWaitingEnable"))';
+}

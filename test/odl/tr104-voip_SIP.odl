@@ -1,0 +1,664 @@
+%define {
+    select 'Services.VoiceService'{
+
+        %persistent object SIP{ 
+
+            %persistent object Client[]{
+
+                counted with ClientNumberOfEntries;
+
+                %persistent bool Enable{ 
+                    default false;
+                    userflags %upc;
+                }
+
+                bool QuiescentMode;
+
+                %read-only string Status{
+                    default "Disabled";
+                    on action validate call check_enum ["Up", "Initializing", "Registering", "Deregistering", "Error_Misconfigured", "Error_Network", "Error_Registration", "Quiescent", "Disabled"];
+
+                }
+
+                %persistent %unique %key string Alias{
+                    on action validate call check_maximum_length 64;
+                }
+
+                %read-only string Origin{
+                    default "Static";
+                    on action validate call check_enum ["AutoConfigured", "Static"];
+                }
+
+                string RegisterMode{
+                    default "RFC3261";
+                    on action validate call check_enum ["RFC3261", "STATIC", "RFC6140", "TISPAN"];
+                }
+
+                %persistent string AuthUserName{
+                    default "";
+                    on action validate call check_maximum_length 128;
+                    userflags %upc;
+                }
+
+                %persistent string AuthPassword{
+                    default "";
+                    on action validate call check_maximum_length 128;
+                    userflags %upc;
+                }
+
+                %persistent string Network{
+                    on action validate call check_maximum_length 256;
+                    userflags %upc;
+                }
+
+                uint32 MaxSessions{
+                    default 2;
+                }
+
+                %persistent string RegisterURI{
+                    default "";
+                    on action validate call check_maximum_length 389;
+                    userflags %upc;
+                }
+
+                bool E164Format=true;
+
+                %persistent bool T38Enable{
+                    default false;
+                    userflags %upc;
+                }
+
+                %persistent object Contact[]{
+                    
+                    counted with ContactNumberOfEntries;
+
+                    bool Enable{
+                        default false;
+                    }
+
+                    %read-only string Status{
+                        default "Disabled";
+                        on action validate call check_enum ["Up", "Error", "Disabled"];
+                    }
+
+                    %persistent %unique %key string Alias{
+                        on action validate call check_maximum_length 64;
+                    }
+
+                    %read-only string Origin{
+                        default "Static";
+                        on action validate call check_enum ["AutoConfigured", "Static"];
+                    }
+
+                    string IPAddress{
+                        on action validate call check_maximum_length 45;
+                    }
+
+                    uint32 Port{
+                        on action validate call check_range {min = 0, max = 65535};
+                    }
+
+                    string ContactURI{
+                        default "";
+                        on action validate call check_maximum_length 256;
+                    }
+
+                    %read-only datetime ExpireTime;
+
+                    uint32 PingInterval{
+                        on action validate call check_range {min = 0, max = 65535};
+                    }
+
+                    %read-only string UserAgent{
+                        on action validate call check_maximum_length 256;
+                    }
+                }
+
+                %persistent object EventSubscribe[]{
+
+                    counted with SIPEventSubscribeNumberOfEntries;
+
+                    bool Enable{
+                        default false;
+                    }
+
+                    %persistent %unique %key string Alias{
+                        on action validate call check_maximum_length 64;
+                    }
+
+                    %read-only string Event{
+                        on action validate call check_maximum_length 32;
+                    }
+
+                    string AuthUserName{
+                        default "";
+                        on action validate call check_maximum_length 128;
+                    }
+
+                    string AuthPassword{
+                        default "";
+                        on action validate call check_maximum_length 128;
+                    }
+                }
+            }
+
+            %persistent object Network[]{
+
+                counted with NetworkNumberOfEntries;
+
+                %persistent bool Enable{
+                    default false;
+                    userflags %upc;
+                }
+
+                bool QuiescentMode;
+
+                %read-only string Status{
+                    default "Disabled";
+                    on action validate call check_enum ["Up", "Resolving", "Error_DNS", "Error_Other", "Disabled"];
+                }
+
+                %persistent %unique %key string Alias{
+                    on action validate call check_maximum_length 64;
+                }
+
+                %persistent string ProxyServer{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                    userflags %upc;
+                }
+
+                %persistent uint32 ProxyServerPort{
+                    default 5060;
+                    on action validate call check_range {min = 0, max = 65535};
+                    userflags %upc;
+                }
+
+                %persistent string ProxyServerTransport{
+                    default "UDP";
+                    on action validate call check_enum ["UDP", "TCP", "TLS", "SCTP"];
+                    userflags %upc;
+                }
+
+                %persistent string RegistrarServer{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                    userflags %upc;
+                }
+
+                %persistent uint32 RegistrarServerPort{
+                    default 5060;
+                    on action validate call check_range {min = 0, max = 65535};
+                    userflags %upc;
+                }
+
+                string RegistrarServerTransport{
+                    default "UDP";
+                    on action validate call check_enum ["UDP", "TCP", "TLS", "SCTP"];
+                }
+
+                string ServerDomain{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+
+                %read-only string ChosenDomain{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+
+                %read-only string ChosenIPAddress{
+                    on action validate call check_maximum_length 45;
+                }
+
+                uint32 ChosenPort{
+                    on action validate call check_range {min = 0, max = 65535};
+                }
+
+                %persistent string UserAgentDomain{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                    userflags %upc;
+                }
+
+                %persistent uint32 UserAgentPort{
+                    default 5060;
+                    on action validate call check_range {min = 0, max = 65535};
+                    userflags %upc;
+                }
+
+                %persistent string UserAgentTransport{
+                    default "UDP";
+                    on action validate call check_enum ["UDP", "TCP", "TLS", "SCTP"];
+                    userflags %upc;
+                }
+
+                %persistent string OutboundProxy{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                    userflags %upc;
+                }
+
+                %read-only string OutboundProxyResolvedAddress{
+                    on action validate call check_maximum_length 45;
+                }
+
+                %read-only string OutboundProxyPrecedence{
+                    default "Static";
+                    on action validate call check_enum ["Static", "DHCP"];
+                }
+
+                %persistent uint32 OutboundProxyPort{
+                    default 5060;
+                    on action validate call check_range {min = 0, max = 65535};
+                    userflags %upc;
+                }
+
+                bool STUNEnable{
+                    default false;
+                }
+
+                string STUNServer{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+
+                uint32 NonVoiceBandwidthReservedUpstream{
+                    default 0;
+                }
+
+                uint32 NonVoiceBandwidthReservedDownstream{
+                    default 0;
+                }
+
+                string Organization{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+
+                uint32 RegistrationPeriod	{
+                    default 3600;
+                    on action validate call check_minimum 1;
+                }
+
+                string Realm;
+
+                uint32 TimerT1	{
+                    default 500;
+                    on action validate call check_minimum 1;
+                }
+
+                uint32 TimerT2	{
+                    default 1000;
+                    on action validate call check_minimum 1;
+                }
+
+                uint32 TimerT4	{
+                    default 4000;
+                    on action validate call check_minimum 1;
+                }
+
+                uint32 TimerA	{
+                    default 500;
+                    on action validate call check_minimum 1;
+                }
+
+                uint32 TimerB	{
+                    default 32000;
+                    on action validate call check_minimum 1;
+                }
+
+                uint32 TimerC	{
+                    default 500;
+                    on action validate call check_minimum 1;
+                }
+
+                uint32 TimerD	{
+                    default 1000;
+                    on action validate call check_minimum 1;
+                }
+
+                uint32 TimerE	{
+                    default 500;
+                    on action validate call check_minimum 1;
+                }
+
+                uint32 TimerF	{
+                    default 32000;
+                    on action validate call check_minimum 1;
+                }
+
+                uint32 TimerG	{
+                    default 500;
+                    on action validate call check_minimum 1;
+                }
+
+                uint32 TimerH	{
+                    default 32000;
+                    on action validate call check_minimum 1;
+                }
+
+                uint32 TimerI	{
+                    default 500;
+                    on action validate call check_minimum 1;
+                }
+
+                uint32 TimerJ	{
+                    default 500;
+                    on action validate call check_minimum 1;
+                }
+
+                uint32 TimerK	{
+                    default 32000;
+                    on action validate call check_minimum 1;
+                }
+
+                uint32 InviteExpires	{
+                    default 32000;
+                    on action validate call check_minimum 1;
+                }
+
+                uint32 ReInviteExpires	{
+                    default 32000;
+                    on action validate call check_minimum 1;
+                }
+
+                %persistent uint32 RegisterExpires	{
+                    default 3600;
+                    on action validate call check_minimum 1;
+                    userflags %upc;
+                }
+
+                %persistent uint32 RegisterRetryInterval	{
+                    default 32;
+                    on action validate call check_minimum 1;
+                    userflags %upc;
+                }
+
+                string InboundAuth{
+                    default "None";
+                    on action validate call check_enum ["None", "Digest", "SourceFilter"];
+                }
+
+                string InboundAuthUsername{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+
+                string InboundAuthPassword{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+
+                %persistent bool UseCodecPriorityInSDPResponse{
+                    default false;
+                }
+
+                %persistent uint32 DSCPMark{
+                    default 46;
+                    on action validate call check_range {min = 0, max = 63};
+                    userflags %upc;
+                }
+
+                uint32 VLANIDMark{
+                    default 56;
+                    on action validate call check_minimum -1;
+                }
+
+                int32 EthernetPriorityMark{
+                    default 5;
+                    on action validate call check_minimum -1;
+                }
+                /**
+                  SIP.Network{i} other objects need define later
+                %persistent object FQDNServer[]{
+
+                }
+
+                %persistent object EventSubscribe[]{
+
+                }
+
+                %persistent object ResponseMap[]{
+
+                }
+
+                 **/
+
+            }
+
+            %persistent object Proxy[]{
+
+                counted with ProxyNumberOfEntries;
+
+                %persistent bool Enable{
+                    default false;
+                }
+
+                %read-only string Status{
+                    default "Disabled";
+                    on action validate call check_enum ["Up", "Error", "Disabled"];
+                }
+
+                %persistent %unique %key string Alias{
+                    on action validate call check_maximum_length 64;
+                }
+
+                %read-only string Origin{
+                    default "Static";
+                    on action validate call check_enum ["AutoConfigured", "Static"];
+                }
+
+                string ProxyIPAddress{
+                    on action validate call check_maximum_length 45;
+                }
+
+                uint32 ProxyPort{
+                    on action validate call check_range {min = 0, max = 65535};
+                }
+
+                %read-only string ContactURI{
+                    on action validate call check_maximum_length 256;
+                }
+
+                string VoIPProfile{
+                    on action validate call check_maximum_length 256;
+                }
+            }
+
+            %persistent object Registrar[]{
+
+                counted with RegistrarNumberOfEntries;
+
+                bool Enable{ 
+                    default false;
+                }
+
+                bool QuiescentMode;
+
+                %read-only string Status{
+                    default "Disabled";
+                    on action validate call check_enum ["Up", "Error", "Disabled"];
+                }
+
+                %persistent %unique %key string Alias{
+                    on action validate call check_maximum_length 64;
+                }
+
+                %read-only string Origin{
+                    default "Static";
+                    on action validate call check_enum ["AutoConfigured", "Static"];
+                }
+
+                string RegistrarIPAddress{
+                    on action validate call check_maximum_length 45;
+                }
+
+                uint32 RegistrarPort{
+                    on action validate call check_range {min = 0, max = 65535};
+                }
+
+                uint32 RegisterExpires;
+
+                uint32 PingInterval{
+                    on action validate call check_range {min = 0, max = 65535};
+                }
+
+                string Organization{
+                    default "";
+                    on action validate call check_maximum_length 256;
+                }
+
+                string Realm;
+
+                string VoIPProfile{
+                    on action validate call check_maximum_length 256;
+                }
+
+                string ContactURI{
+                    on action validate call check_maximum_length 256;
+                }
+
+                %persistent object Account[]{
+
+                    counted with AccountNumberOfEntries;
+
+                    string Enable{ 
+                        default "Disable";
+                        on action validate call check_enum ["Enable", "Disable"];
+
+                    }
+
+                    bool QuiescentMode;
+
+                    %read-only string Status{
+                        default "Disabled";
+                        on action validate call check_enum ["Up", "Initializing", "Registering", "Deregistering", "Error_Misconfigured", "Error_Network", "Error_Registration", "Quiescent", "Disabled"];
+
+                    }
+
+                    %persistent %unique %key string Alias{
+                        on action validate call check_maximum_length 64;
+                    }
+
+                    %read-only string Origin{
+                        default "Static";
+                        on action validate call check_enum ["AutoConfigured", "Static"];
+                    }
+
+                    %read-only string CallStatus{
+                        default "Idle";
+                        on action validate call check_enum ["Idle", "Dialing", "Delivered", "Connected", "Alerting", "Disconnected"];
+                    }
+
+                    string AuthUserName{
+                        default "";
+                        on action validate call check_maximum_length 128;
+                    }
+
+                    string AuthPassword{
+                        default "";
+                        on action validate call check_maximum_length 128;
+                    }
+
+                    %read-only string RegistrationStatus{
+                        default "Unregistered";
+                        on action validate call check_enum ["Registered", "Unregistered"];
+                    }
+
+                    string URI{
+                        on action validate call check_maximum_length 389;
+                    }
+
+                    string Domain{
+                        on action validate call check_maximum_length 256;
+                    }
+
+                    string CodecList;
+
+                    string VoIPProfile{
+                        on action validate call check_maximum_length 256;
+                    }
+
+                    %persistent object Contact[]{
+
+                        counted with ContactNumberOfEntries;
+
+                        bool Enable=false;
+
+                        %read-only string Status{
+                            default "Disabled";
+                            on action validate call check_enum ["Up", "Initializing", "Registering", "Deregistering", "Error_Misconfigured", "Error_Network", "Error_Registration", "Quiescent", "Disabled"];
+
+                        }
+
+                        %persistent %unique %key string Alias{
+                            on action validate call check_maximum_length 64;
+                        }
+
+                        %read-only string Origin{
+                            default "Static";
+                            on action validate call check_enum ["AutoConfigured", "Static"];
+                        }
+
+                        string IPAddress{
+                            on action validate call check_maximum_length 45;
+                        }
+
+                        uint32 Port{
+                            on action validate call check_range {min = 0, max = 65535};
+                        }
+
+                        string ContactURI{
+                            on action validate call check_maximum_length 256;
+                        }
+
+                        %read-only datetime ExpireTime;
+
+                        string UserAgent{
+                            on action validate call check_maximum_length 64;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+%populate {
+    on event "dm:object-changed" call param_bool_changed
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.SIP\.Client\.[0-9]+\.$" &&
+        (contains("parameters.Enable")||contains("parameters.T38Enable"))';
+
+    on event "dm:object-changed" call param_bool_changed
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.SIP\.Network\.[0-9]+\.$" &&
+        (contains("parameters.UseCodecPriorityInSDPResponse"))';
+
+    on event "dm:object-changed" call param_str_changed
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.SIP\.Client\.[0-9]+\.$" &&
+        (contains("parameters.AuthUserName") || contains("parameters.AuthPassword") || contains("parameters.RegisterURI"))';
+
+    on event "dm:object-changed" call param_str_changed
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.SIP\.Network\.[0-9]+\.$" &&
+        (contains("parameters.OutboundProxy") || contains("parameters.ProxyServer") || contains("parameters.RegistrarServer")) || contains("parameters.UserAgentDomain")';
+
+    on event "dm:object-changed" call update_to_dns
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.SIP\.Network\.[0-9]+\.$" &&
+        (contains("parameters.OutboundProxy") || contains("parameters.ProxyServer"))';
+
+    on event "dm:object-changed" call param_uint_changed
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.SIP\.Network\.[0-9]+\.$" &&
+        (contains("parameters.OutboundProxyPort") || contains("parameters.ProxyServerPort") || contains("parameters.RegistrarServerPort") || contains("parameters.UserAgentPort") || contains("parameters.DSCPMark") || contains("parameters.RegisterExpires") || contains("parameters.RegisterRetryInterval"))';
+
+    on event "dm:object-changed" call update_to_qos
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.SIP\.Network\.[0-9]+\.$" &&
+        (contains("parameters.DSCPMark") || contains("parameters.EthernetPriorityMark"))';
+
+    on event "dm:object-changed" call param_str_changed
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.SIP\.Proxy\.[0-9]+\.$" &&
+        (contains("parameters.ProxyIPAddress") || contains("parameters.VoIPProfile"))';
+
+    on event "dm:object-changed" call param_uint_changed
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.SIP\.Proxy\.[0-9]+\.$" &&
+        (contains("parameters.ProxyPort"))';
+}

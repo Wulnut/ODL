@@ -1,0 +1,321 @@
+%define {
+    select 'Services.VoiceService'{
+
+        object CallLog[]{ 
+
+            counted with CallLogNumberOfEntries;
+
+            %unique %key string Alias{
+                on action validate call check_maximum_length 64;
+            }
+
+            %read-only string CallingPartyNumber{
+                on action validate call check_maximum_length 256;
+            }
+
+            %read-only string CalledPartyNumber{
+                on action validate call check_maximum_length 256;
+            }
+
+            %read-only string Source{
+                on action validate call check_maximum_length 256;
+            }
+
+            %read-only string Destination{
+                on action validate call check_maximum_length 256;
+            }
+
+            %read-only string RemoteParty{
+                on action validate call check_maximum_length 32;
+            }
+
+            %read-only string UsedLine{
+                on action validate call check_maximum_length 256;
+            }
+
+            %read-only string UsedExtensions;
+
+            %read-only string Direction{
+                default "Incoming";
+                on action validate call check_enum ["Incoming", "Outgoing"];
+            }
+
+            %read-only datetime Start;
+
+            %read-only uint32 Duration;
+
+            %read-only string CallTerminationCause{
+                default "NoExtensionsMapped";
+                on action validate call check_enum ["NoExtensionsMapped", "NoExtensionsAvailable", "AnonymousCallRejection", "CallWaitingRejected", "CallForwardingUnconditional", "CallForwardingBusy", "CallForwardingNoReply", "LocalDisconnect", "LocalForbidden", "LocalTimeout", "LocalMediaError", "LocalPriority", "LocalReject", "LocalTransfer", "LocalInternalError", "RemoteDisconnect", "RemoteBadRequest", "RemoteForbidden", "RemoteNotFound", "RemoteReject", "RemoteNotAllowed", "RemoteNotAcceptable", "RemoteTimeout", "RemoteUnavailable", "RemoteBusy", "RemoteNotSupported", "RemoteNetworkFailure"];
+            }
+
+            object SignalingPerformance[]{
+
+                counted with SignalingPerformanceNumberOfEntries;
+
+                %read-only string Protocol{
+                    default "SIP";
+                    on action validate call check_enum ["H.323", "SIP"];
+                }
+
+                %read-only uint32 CallSetupDelay;
+
+                %read-only int32 OutgoingMediaEstablishDelay;
+
+                %read-only int32 IncomingMediaEstablishDelay;
+            }
+
+            object Session[]{
+
+                counted with SessionNumberOfEntries;
+
+                %read-only string StreamType{
+                    default "Audio";
+                    on action validate call check_enum ["Audio", "Video", "Fax", "Modem"];
+                }
+
+                %read-only datetime Start;
+
+                %read-only uint32 Duration;
+
+                %unique %key string SessionID{
+                    on action validate call check_maximum_length 16;
+                }
+                
+                object Source{
+
+                    object RTP{
+
+                        %read-only string FarEndIPAddress{
+                            on action validate call check_maximum_length 45;
+                        }
+
+                        %read-only uint32 SMTPServerPort{
+                            on action validate call check_range {min = 0, max = 65535};
+                        }
+
+                        %read-only uint32 MinJitter{
+                            on action validate call check_minimum -1;
+                        }
+
+                        %read-only uint32 MaxJitter{
+                            on action validate call check_minimum -1;
+                        }
+
+                        %read-only uint32 MeanJitter{
+                            on action validate call check_minimum -1;
+                        }
+
+                        %read-only uint32 PacketDelayVariation{
+                            on action validate call check_minimum -1;
+                        }
+
+                        %read-only uint32 BufferDelay{
+                            on action validate call check_minimum -1;
+                        }
+
+                        %read-only uint32 BurstCount;
+
+                        %read-only uint32 PacketsLost;
+
+                        %read-only uint32 PacketsDiscarded;
+
+                        %read-only uint32 ReceivePacketLossRate{
+                            on action validate call check_range {min = 0, max = 100};
+                        }
+
+                        %read-only uint32 FarEndPacketLossRate{
+                            on action validate call check_range {min = 0, max = 100};
+                        }
+
+                        %read-only int32 ReceiveInterarrivalJitter{
+                            on action validate call check_minimum -1;
+                        }
+
+                        %read-only int32 FarEndInterarrivalJitter{
+                            on action validate call check_minimum -1;
+                        }
+
+                        %read-only int32 AverageReceiveInterarrivalJitter{
+                            on action validate call check_minimum -1;
+                        }
+
+                        %read-only int32 AverageFarEndInterarrivalJitter{
+                            on action validate call check_minimum -1;
+                        }
+
+                        %read-only int32 RoundTripDelay{
+                            on action validate call check_minimum -1;
+                        }
+
+                        %read-only int32 AverageRoundTripDelay{
+                            on action validate call check_minimum -1;
+                        }
+
+                        %read-only uint32 SamplingFrequency;
+                    }
+
+                    object DSP{
+
+                        object ReceiveCodec{
+
+                            %read-only string Codec{
+                                on action validate call check_maximum_length 256;
+                            }
+
+                            %read-only bool SilenceSuppression;
+
+                            %read-only uint32 Overruns;
+
+                            %read-only uint32 Underruns;
+
+                        }
+
+                        object TransmitCodec{
+
+                            %read-only string Codec{
+                                on action validate call check_maximum_length 256;
+                            }
+
+                            %read-only bool SilenceSuppression;
+
+                            %read-only uint32 PacketizationPeriod;
+
+                            %read-only uint32 Overruns;
+
+                            %read-only uint32 Underruns;
+
+                        }
+                    }
+
+                    object VoiceQuality{
+
+                        %read-only string VoIPQualityIndicator;
+
+                        %read-only string WorstVoIPQualityIndicatorsValues;
+
+                        %read-only string WorstVoIPQualityIndicatorTimestamps;
+
+                    }
+                }
+
+                object Destination{
+
+                    object RTP{
+
+                        %read-only string FarEndIPAddress{
+                            on action validate call check_maximum_length 45;
+                        }
+
+                        %read-only uint32 FarEndUDPPort{
+                            on action validate call check_range {min = 0, max = 65535};
+                        }
+
+                        %read-only int32 MinJitter{
+                            on action validate call check_minimum -1;
+                        }
+
+                        %read-only int32 MaxJitter{
+                            on action validate call check_minimum -1;
+                        }
+
+                        %read-only int32 MeanJitter{
+                            on action validate call check_minimum -1;
+                        }
+
+                        %read-only int32 PacketDelayVariation{
+                            on action validate call check_minimum -1;
+                        }
+
+                        %read-only int32 BufferDelay{
+                            on action validate call check_minimum -1;
+                        }
+
+                        %read-only uint32 BurstCount;
+
+                        %read-only uint32 PacketsLost;
+
+                        %read-only uint32 PacketsDiscarded;
+
+                        %read-only uint32 ReceivePacketLossRate{
+                            on action validate call check_range {min = 0, max = 100};
+                        }
+
+                        %read-only uint32 FarEndPacketLossRate{
+                            on action validate call check_range {min = 0, max = 100};
+                        }
+
+                        %read-only int32 ReceiveInterarrivalJitter{
+                            on action validate call check_minimum -1;
+                        }
+
+                        %read-only int32 FarEndInterarrivalJitter{
+                            on action validate call check_minimum -1;
+                        }
+
+                        %read-only int32 AverageReceiveInterarrivalJitter{
+                            on action validate call check_minimum -1;
+                        }
+
+                        %read-only int32 AverageFarEndInterarrivalJitter{
+                            on action validate call check_minimum -1;
+                        }
+
+                        %read-only int32 RoundTripDelay{
+                            on action validate call check_minimum -1;
+                        }
+
+                        %read-only int32 AverageRoundTripDelay{
+                            on action validate call check_minimum -1;
+                        }
+
+                        %read-only uint32 SamplingFrequency;
+                    }
+
+                    object DSP{
+
+                        object ReceiveCodec{
+
+                            %read-only string Codec{
+                                on action validate call check_maximum_length 256;
+                            }
+
+                            %read-only bool SilenceSuppression;
+
+                            %read-only uint32 Overruns;
+
+                            %read-only uint32 Underruns;
+
+                        }
+
+                        object TransmitCodec{
+
+                            %read-only string Codec{
+                                on action validate call check_maximum_length 256;
+                            }
+
+                            %read-only bool SilenceSuppression;
+
+                            %read-only uint32 PacketizationPeriod;
+
+                            %read-only uint32 Overruns;
+
+                            %read-only uint32 Underruns;
+
+                        }
+                    }
+
+                    object VoiceQuality{
+
+                        %read-only string VoIPQualityIndicator;
+
+                        %read-only string WorstVoIPQualityIndicatorsValues;
+
+                        %read-only string WorstVoIPQualityIndicatorTimestamps;
+
+                    }
+                }
+            }
+        }
+    }
+}

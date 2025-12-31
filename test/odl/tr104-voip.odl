@@ -1,0 +1,69 @@
+#!/usr/bin/amxrt
+
+%config {
+    // Application name
+    name = "tr104-voip";
+    storage-path = "${rw_data_path}/${name}";
+    prefix_ = "X_PRPLWARE-COM_";
+
+    import-dbg = false;
+    import-dirs = [
+        "/usr/lib/amx/${name}", 
+        "/usr/lib/amx/modules"
+    ];
+
+    definition_file = "${name}_definition.odl";
+    sip_file = "${name}_SIP.odl";
+    capabilities_file = "${name}_Capabilities.odl";
+    callcontrol_file = "${name}_CallControl.odl";
+    codecprofile_file = "${name}_CodecProfile.odl";
+    calllog_file = "${name}_CallLog.odl";
+    voipprofile_file = "${name}_VoIPProfile.odl";
+    defaults_dir = "defaults.d/";
+
+    sahtrace = {
+        type = "syslog",
+        level = 200
+    };
+    trace-zones = {
+        "voip" = 500,
+        "nm_populate" = 200
+    };
+
+    pcm_svc_config = {
+        "Objects" = "Services",
+        "BackupFiles" = "tr104-voip"
+    };
+
+    odl = {
+        load-dm-events = true,
+        dm-load = true,
+        dm-save = true,
+        dm-save-on-changed = true,
+        dm-save-delay = 1000,
+        dm-defaults = "defaults.d/",
+        directory = "${storage-path}/odl"
+    };
+
+    %global module-dir = "/usr/lib/amx/${name}/modules";
+}
+
+
+import "${name}.so" as "${name}";
+
+#include "mod_sahtrace.odl";
+#include "mod_pcm_svc.odl";
+include "${definition_file}";
+include "${sip_file}";
+include "${capabilities_file}";
+include "${callcontrol_file}";
+include "${codecprofile_file}";
+include "${calllog_file}";
+include "${voipprofile_file}";
+%populate {
+    on event "app:start" call voip_service_dm_init;
+}
+
+%define {
+    entry-point tr104-voip.voip_mngr_main;
+}

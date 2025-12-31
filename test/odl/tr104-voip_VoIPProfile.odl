@@ -1,0 +1,206 @@
+%define {
+    select 'Services.VoiceService'{
+
+        %persistent object VoIPProfile[]{ 
+            
+            counted with VoIPProfileNumberOfEntries;
+
+            bool Enable{ 
+                default true;
+            }
+
+            bool QuiescentMode;
+
+            string Name{
+                default "";
+                on action validate call check_maximum_length 64;
+            }
+
+            %persistent %unique %key string Alias{
+                on action validate call check_maximum_length 64;
+            }
+
+            %persistent string DTMFMethod{
+                default "RFC2833";
+                on action validate call check_enum ["InBand", "RFC2833", "SIPInfo"];
+            }
+
+            string DTMFMethodG711{
+                default "InBand";
+                on action validate call check_enum ["InBand", "RFC4733", "SIPInfo", ""];
+            }
+
+            string QIModelUsed{
+                on action validate call check_maximum_length 128;
+            }
+
+            %read-only uint32 QICalculationInterval;
+
+            %read-only uint32 NumberOfWorstQIValues;
+
+            %persistent object RTP{ 
+
+                %persistent uint32 LocalPortMin{
+                    default 50000;
+                    on action validate call check_range {min = 1, max = 65535};
+                }
+
+                %persistent uint32 LocalPortMax{
+                    default 50020;
+                    on action validate call check_range {min = 1, max = 65535};
+                }
+
+                uint32 Gmin{
+                    default 16;
+                    on action validate call check_range {min = 1, max = 255};
+                }
+
+                %persistent uint32 DSCPMark{
+                    default 46;
+                    on action validate call check_range {min = 0, max = 63};
+                    userflags %upc;
+                }
+
+                int32 VLANIDMark	{
+                    default 48;
+                    on action validate call check_minimum -1;
+                }
+
+                int32 EthernetPriorityMark	{
+                    default 5;
+                    on action validate call check_minimum -1;
+                }
+
+                %persistent uint32 TelephoneEventPayloadType{
+                    default 101;
+                    on action validate call check_range {min = 0, max = 128};
+                }
+
+                string JitterBufferType{
+                    default "Static";
+                    on action validate call check_enum ["Static", "Dynamic"];
+                }
+
+                uint32 JitterBufferMaxSize;
+
+                uint32 JitterBufferMinSize;
+
+                uint32 JitterBufferActualSize;
+
+                %persistent object RTCP{ 
+
+                    %persistent bool Enable{
+                        default true;
+                    }
+
+                    %persistent uint32 TxRepeatInterval{
+                        default 5000;
+                        on action validate call check_minimum 1;
+                    }
+
+                    %persistent %unique %key string LocalCName{
+                        on action validate call check_maximum_length 64;
+                    }
+
+                }
+
+                %persistent object SRTP{ 
+
+                    bool Enable; 
+
+                    string KeyingMethods{
+                        default "Null";
+                        on action validate call check_enum ["Null", "Static", "SDP", "IKE"];
+                    }
+
+                    %persistent %unique %key string EncryptionKeySizes;
+                }
+
+                %persistent object Redundancy{ 
+
+                    bool Enable{ 
+                        default false;
+                    }
+
+                    uint32 PayloadType{
+                        default 0;
+                        on action validate call check_range {min = 0, max = 127};
+                    }
+
+                    %read-only uint32 BlockPayloadType{
+                        default 0;
+                        on action validate call check_range {min = 0, max = 127};
+                    }
+
+                    int32 FaxAndModemRedundancy{
+                        default -1;
+                        on action validate call check_range {min = -1, max = 5};
+                    }
+
+                    int32 ModemRedundancy{
+                        default -1;
+                        on action validate call check_range {min = -1, max = 5};
+                    }
+
+                    int32 DTMFRedundancy{
+                        default -1;
+                        on action validate call check_range {min = -1, max = 5};
+                    }
+
+                    int32 VoiceRedundancy{
+                        default -1;
+                        on action validate call check_range {min = -1, max = 5};
+                    }
+
+                    uint32 MaxSessionsUsingRedundancy{
+                        default 0;
+                    }
+                }
+            }
+
+            %persistent object FaxT38{ 
+
+                uint32 MaxBitRate{
+                    default 14400;
+                    on action validate call check_range {min = 0, max = 65535};
+                }
+
+                uint32 HighSpeedRedundancy{
+                    default 3;
+                    on action validate call check_range {min = 0, max = 3};
+                }
+
+                uint32 LowSpeedRedundancy{
+                    on action validate call check_range {min = 0, max = 5};
+                }
+
+                string TCFMethod{
+                    default "Local";
+                    on action validate call check_enum ["Local", "Network"];
+                }
+            }
+        }
+    }
+}
+
+%populate {
+    on event "dm:object-changed" call param_str_changed
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.VoIPProfile\.[0-9]+\.$" &&
+        (contains("parameters.DTMFMethod"))';
+
+    on event "dm:object-changed" call param_uint_changed
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.VoIPProfile\.[0-9]+\.RTP+\.$" &&
+        (contains("parameters.DSCPMark") || contains("LocalPortMax") || contains("parameters.LocalPortMin") || contains("parameters.TelephoneEventPayloadType"))';
+
+    on event "dm:object-changed" call update_to_qos
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.VoIPProfile\.[0-9]+\.RTP+\.$" &&
+        (contains("parameters.DSCPMark") || contains("parameters.EthernetPriorityMark"))';
+
+    on event "dm:object-changed" call param_uint_changed
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.VoIPProfile\.[0-9]+\.RTP+\.RTCP+\.$" &&
+        (contains("parameters.TxRepeatInterval"))';
+
+    on event "dm:object-changed" call param_bool_changed
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.VoIPProfile\.[0-9]+\.RTP+\.RTCP+\.$" &&
+        (contains("parameters.Enable"))';
+}

@@ -1,0 +1,160 @@
+%define {
+    %persistent object Services {
+
+        %protected %read-only csv_string VoiceServiceSupportedControllers = "mod-rpc-voip";
+
+        %persistent object VoiceService[] {
+
+            %persistent %protected string Controller = "mod-rpc-voip" {
+                on action validate call check_is_in "Services.VoiceServiceSupportedControllers";
+            }
+
+            %persistent %unique %key string Alias{
+                on action validate call check_maximum_length 64;
+            }
+
+            %persistent string '${prefix_}WANReferenceList'{
+                default "Logical.Interface.5.";
+                on action validate call check_maximum_length 1024;
+                userflags %upc;
+            }
+
+            %persistent object Interwork[]{
+
+                counted with InterworkNumberOfEntries;
+
+                %persistent %unique %key string Alias{
+                    on action validate call check_maximum_length 64;
+                }
+
+                %persistent object Map[]{
+
+                    %persistent %unique %key string Alias{
+                        on action validate call check_maximum_length 64;
+                    }
+
+                    %persistent string DigitMap{
+                        default "[*#X].T|";
+                        on action validate call check_maximum_length 256;
+                        userflags %upc;
+                    }
+                }
+            }
+            
+            %persistent object POTS {
+                %persistent %unique %key string Alias{
+                    on action validate call check_maximum_length 64;
+                }
+
+                %persistent string Region{
+                    default "UK";
+                    on action validate call check_maximum_length 2;
+                    on action validate call check_enum["IT", "DE", "UK", "PT", "IE"];
+                    userflags %upc;
+                }
+
+                %persistent object FXS[]{
+
+                    counted with FXSNumberOfEntries;
+
+                    %persistent %unique %key string Alias{
+                        on action validate call check_maximum_length 64;
+                    }
+
+                    %persistent object VoiceProcessing{
+
+                        %persistent int32 TransmitGain{
+                            default 0;
+                        }
+
+                        %persistent int32 ReceiveGain{
+                            default 0;
+                        }
+
+                        %persistent bool EchoCancellationEnable{
+                            default true;
+                        }
+                    }
+                }
+            }
+
+            object Trunk[]{
+
+                counted with TrunkNumberOfEntries;
+
+                %persistent bool Enable{
+                    default false;
+                }
+
+                bool QuiescentMode;
+
+                %read-only string Status{
+                    default "Disabled";
+                    on action validate call check_enum ["Up", "Initializing", "Registering", "Unregistering", "Error", "Testing", "Disabled"];
+
+                }
+
+                %persistent %unique %key string Alias{
+                    on action validate call check_maximum_length 64;
+                }
+
+                %read-only string Origin{
+                    default "Static";
+                    on action validate call check_enum ["AutoConfigured", "Static"];
+                }
+
+                string Name{
+                    on action validate call check_maximum_length 16;
+                }
+
+                string DDIRange;
+
+                bool LineObjectCreation;
+
+                uint32 MaxChannels;
+
+                uint32 MaxOutboundChannelCount{
+                    default -1;
+                    on action validate call check_minimum -1;
+                }
+
+                uint32 MaxInboundChannelCount{
+                    default -1;
+                    on action validate call check_minimum -1;
+                }
+
+                string CodecPriority{
+                    default "Local";
+                    on action validate call check_enum ["Local", "Remote"];
+                }
+
+                string Provider{
+                    on action validate call check_maximum_length 256;
+                }
+            }
+        }
+    }
+}
+
+%populate {
+
+    on event "dm:object-changed" call param_str_changed
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.Interwork\.[0-9]+\.Map\.[0-9]+\.$" &&
+        (contains("parameters.DigitMap"))';
+
+    on event "dm:object-changed" call param_str_changed
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.POTS\.$" &&
+        (contains("parameters.Region"))';
+
+    on event "dm:object-changed" call param_bool_changed
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.POTS\.FXS\.[0-9]+\.VoiceProcessing+\.$" &&
+        (contains("parameters.EchoCancellationEnable"))';
+
+    on event "dm:object-changed" call param_int_changed
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.POTS\.FXS\.[0-9]+\.VoiceProcessing+\.$" &&
+        (contains("parameters.ReceiveGain") || contains("parameters.TransmitGain"))';
+
+    on event "dm:object-changed" call wan_subscribe_changed
+        filter 'path matches "Services\.VoiceService\.[0-9]+\.$" &&
+        contains("parameters.${prefix_}WANReferenceList")';
+}

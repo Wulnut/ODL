@@ -1,0 +1,181 @@
+%define {
+    select 'Services.VoiceService'{
+
+        %persistent object Capabilities{ 
+
+            %persistent %unique %key string Alias{
+                on action validate call check_maximum_length 64;
+            }
+
+            %persistent %read-only uint32 MaxLineCount{
+                default 2;
+                on action validate call check_minimum -1;
+            }
+
+            %read-only uint32 MaxExtensionCount{
+                default 0;
+                on action validate call check_minimum -1;
+            }
+
+            %read-only uint32 MaxCallLogCount{
+                default 50;
+                on action validate call check_minimum -1;
+            }
+
+            %read-only uint32 MaxSessionsPerLine{
+                default 2;
+                on action validate call check_minimum -1;
+            }
+
+            %read-only uint32 MaxSessionsPerExtension{
+                default 0;
+                on action validate call check_minimum -1;
+            }
+
+            %read-only uint32 MaxSessionCount{
+                default 4;
+                on action validate call check_minimum -1;
+            }
+
+            %read-only string NetworkConnectionModes{
+                default "SIP";
+                on action validate call check_enum ["SIP", "MGCP", "MGCP-NCS", "H\.248", "H\.323", "DSS1", "FXO", "X_.+"];
+            }
+
+            %read-only string UserConnectionModes{
+                default "SIP";
+                on action validate call check_enum ["SIP", "DSS1", "FXS", "DECT", "Button", "Virtual", "X_.+"];
+            }
+
+            %read-only string ToneFileFormats{
+                default "G.711MuLaw";
+                on action validate call check_enum ["G.711MuLaw", "G.711ALaw", "G.729", "MP3", "WAV", "AMR"];
+            }
+
+            %read-only string RingFileFormats{
+                default "MIDI";
+                on action validate call check_enum ["MIDI", "SMAF", "RTTTL", "MP3", "WAV", "AMR"];
+            }
+
+            %read-only string FacilityActions{
+                default "AA_REGISTER";
+                on action validate call check_enum ["AA_REGISTER", "AA_ERASE", "AA_INTERROGATE", "CA_ACTIVATE", "CCBS_ACTIVATE", "CCBS_DEACTIVATE", "CCBS_INTERROGATE", "CCNR_ACTIVATE", "CCNR_DEACTIVATE", "CCNR_INTERROGATE", "CFB_REGISTER", "CFB_ACTIVATE", "CFB_DEACTIVATE", "CFB_ERASE", "CFB_INTERROGATE", "CFNR_REGISTER", "CFNR_ACTIVATE", "CFNR_DEACTIVATE", "CFNR_ERASE", "CFNR_INTERROGATE", "CFNR_TIMER", "CFT_ACTIVATE", "CFT_DEACTIVATE", "CFT_INTERROGATE", "CFU_REGISTER", "CFU_ACTIVATE", "CFU_DEACTIVATE", "CFU_ERASE", "CFU_INTERROGATE", "CLIR_ACTIVATE", "CLIR_DEACTIVATE", "CLIR_INTERROGATE", "CP_INVOKE", "CW_ACTIVATE", "CW_DEACTIVATE", "CW_INVOKE", "DND_ACTIVATE", "DND_DEACTIVATE", "DND_INTERROGATE", "EXT_INVOKE", "LINE_INVOKE", "MAILBOX_INVOKE", "OCB_ACTIVATE", "OCB_DEACTIVATE", "OCB_INTERROGATE", "PSO_ACTIVATE", "PW_SET", "SCF_ACTIVATE", "SCF_DEACTIVATE", "SCF_INTERROGATE", "SCREJ_ACTIVATE", "SCREJ_DEACTIVATE", "SCREJ_INTERROGATE", "SR_ACTIVATE", "SR_DEACTIVATE", "SR_INTERROGATE"];
+            }
+
+            %persistent object SIP{
+
+                %persistent object Client{
+
+                    %read-only string Extensions{
+                        default "REFER";
+                        on action validate call check_enum ["REFER", "INFO", "X_EXAMPLE-COM_MyExt"];
+                    }
+
+                    %read-only string URISchemes;
+
+                    %read-only string EventTypes{
+                        default "call-completion";
+                        on action validate call check_enum ["call-completion", "presence", "X_EXAMPLE-COM_MyEvtPkg"];
+                    }
+
+                    %read-only string TLSAuthenticationProtocols{
+                        default "Null";
+                        on action validate call check_enum ["Null", "MD5", "SHA-1", "SHA-2", "AEAD"];
+                    }
+
+                    %read-only string TLSAuthenticationKeySizes;
+
+                    %read-only string TLSEncryptionProtocols{
+                        default "Null";
+                        on action validate call check_enum ["Null", "RC4", "RC2", "DES", "3DES", "AES", "Camellia"];
+                    }
+
+                    %read-only string TLSEncryptionKeySizes;
+
+                    %read-only string TLSKeyExchangeProtocols{
+                        default "RSA";
+                        on action validate call check_enum ["RSA", "DSS", "DHE-RSA", "DHE-DSS", "ECDHE-RSA", "ECDHE-ECDSA"];
+                    }
+                }
+
+                %persistent object Registrar{
+
+                    %read-only string Extensions{
+                        default "REFER";
+                        on action validate call check_enum ["REFER", "INFO", "X_EXAMPLE-COM_MyExt"];
+                    }
+
+                    %read-only string URISchemes;
+
+                    %read-only string EventTypes;
+
+                    %read-only string TLSAuthenticationProtocols{
+                        default "Null";
+                        on action validate call check_enum ["Null", "MD5", "SHA-1", "SHA-2", "AEAD"];
+                    }
+
+                    %read-only string TLSAuthenticationKeySizes;
+
+                    %read-only string TLSEncryptionProtocols{
+                        default "Null";
+                        on action validate call check_enum ["Null", "RC4", "RC2", "DES", "3DES", "AES", "Camellia"];
+                    }
+
+                    %read-only string TLSEncryptionKeySizes;
+
+                    %read-only string TLSKeyExchangeProtocols{
+                        default "RSA";
+                        on action validate call check_enum ["RSA", "DSS", "DHE-RSA", "DHE-DSS", "ECDHE-RSA", "ECDHE-ECDSA"];
+                    }
+                }
+            } 
+
+            %persistent object POTS{
+
+                %read-only string DialType{
+                    default "Tone";
+                    on action validate call check_enum ["Tone", "Pulse", "Tone and Pulse"];
+                }
+
+                %read-only bool ClipGeneration;
+
+                %read-only bool ChargingPulse;
+            }
+
+            %persistent object Codec[]{
+
+                counted with CodecNumberOfEntries;
+                
+                %persistent %unique %key string Alias{
+                    on action validate call check_maximum_length 64;
+                }
+
+                %read-only string Codec{
+                    default "G.711ALaw";
+                    on action validate call check_enum ["AMR", "Clearmode", "EVRC1", "EVRCB1", "G.711MuLaw", "G.711ALaw", "G.726", "G.729", "G.729.1", "G.729a", "G.729e", "G.728", "G.723.1", "G.722", "G.722.1", "G.722.2", "Generic Comfort Noise", "GSM-FR", "GSM-HR", "GSM-EFR", "iLBC", "Speex"];
+                }
+
+                %read-only uint32 BitRate;
+
+                %read-only string PacketizationPeriod;
+
+                %read-only bool SilenceSuppression; 
+            }
+
+            %persistent object QualityIndicator{
+
+                %read-only string QIModelsSupported;
+            }
+
+            %read-only uint32 MaxQIValues{
+                default 0;
+                on action validate call check_range {min = 0, max = 127};
+            }
+
+            %read-only uint32 MaxWorstQIValues{
+                default 0;
+                on action validate call check_range {min = 0, max = 127};
+            }
+        }
+    }
+}
