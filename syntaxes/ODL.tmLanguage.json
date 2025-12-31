@@ -3,30 +3,351 @@
 	"name": "ODL",
 	"patterns": [
 		{
+			"include": "#comments"
+		},
+		{
 			"include": "#keywords"
 		},
 		{
+			"include": "#types"
+		},
+		{
+			"include": "#attributes"
+		},
+		{
 			"include": "#strings"
+		},
+		{
+			"include": "#arrays"
+		},
+		{
+			"include": "#tables"
+		},
+		{
+			"include": "#functions"
+		},
+		{
+			"include": "#variables"
+		},
+		{
+			"include": "#operators"
+		},
+		{
+			"include": "#numbers"
 		}
 	],
 	"repository": {
-		"keywords": {
-			"patterns": [{
-				"name": "keyword.control.ODL",
-				"match": "\\b(if|while|for|return)\\b"
-			}]
-		},
-		"strings": {
-			"name": "string.quoted.double.ODL",
-			"begin": "\"",
-			"end": "\"",
+		"comments": {
 			"patterns": [
 				{
-					"name": "constant.character.escape.ODL",
-					"match": "\\\\."
+					"name": "comment.line.double-slash.ODL",
+					"match": "//.*$"
+				},
+				{
+					"name": "comment.block.ODL",
+					"begin": "/\\*",
+					"end": "\\*/"
+				}
+			]
+		},
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword.control.section.ODL",
+					"match": "\\b%config\\b|\\b%define\\b|\\b%populate\\b"
+				},
+				{
+					"name": "keyword.control.definition.ODL",
+					"match": "\\bobject\\b|\\bmib\\b|\\bparameter\\b|\\bfunction\\b|\\bevent\\b"
+				},
+				{
+					"name": "keyword.control.include.ODL",
+					"match": "\\binclude\\b|\\b#include\\b|\\b\\?include\\b|\\b&include\\b"
+				},
+				{
+					"name": "keyword.control.import.ODL",
+					"match": "\\bimport\\b|\\bprint\\b|\\brequires\\b"
+				},
+				{
+					"name": "keyword.control.action.ODL",
+					"match": "\\bon\\b|\\baction\\b|\\bcall\\b|\\bfilter\\b|\\bregexp\\b|\\bof\\b"
+				},
+				{
+					"name": "keyword.control.modifier.ODL",
+					"match": "\\bas\\b|\\busing\\b|\\bextend\\b|\\bselect\\b|\\bdefault\\b|\\buserflags\\b|\\bentry-point\\b|\\binstance\\b|\\bsynchronize\\b"
+				},
+				{
+					"name": "keyword.control.counted.ODL",
+					"match": "\\bcounted\\s+with\\b"
+				},
+				{
+					"name": "keyword.control.flow.ODL",
+					"match": "\\btrue\\b|\\bfalse\\b"
+				},
+				{
+					"name": "keyword.operator.sync.ODL",
+					"match": "<->|->|<-"
+				}
+			]
+		},
+		"types": {
+			"patterns": [
+				{
+					"name": "storage.type.ODL",
+					"match": "\\b(string|csv_string|ssv_string|datetime|int8|int16|int32|int64|uint8|uint16|uint32|uint64|bool|list|htable|variant|void|fd|double)\\b"
+				}
+			]
+		},
+		"attributes": {
+			"patterns": [
+				{
+					"name": "storage.modifier.ODL",
+					"match": "%(persistent|read-only|private|protected|template|instance|key|unique|write-once|mandatory|in|out|strict|async|batch|global)"
+				},
+				{
+					"name": "storage.modifier.remove.ODL",
+					"match": "!(persistent|read-only|private|protected|volatile)"
+				},
+				{
+					"name": "storage.modifier.import.ODL",
+					"match": "\\b(RTLD_GLOBAL|RTLD_NODELETE|RTLD_NOW)\\b"
+				}
+			]
+		},
+		"strings": {
+			"patterns": [
+				{
+					"name": "string.quoted.double.ODL",
+					"begin": "\"",
+					"end": "\"",
+					"patterns": [
+						{
+							"include": "#variables"
+						},
+						{
+							"name": "constant.character.escape.ODL",
+							"match": "\\\\."
+						}
+					]
+				},
+				{
+					"name": "string.quoted.single.ODL",
+					"begin": "'",
+					"end": "'",
+					"patterns": [
+						{
+							"include": "#variables"
+						},
+						{
+							"name": "string.quoted.double.nested.ODL",
+							"begin": "\"",
+							"end": "\"",
+							"patterns": [
+								{
+									"name": "constant.character.escape.ODL",
+									"match": "\\\\."
+								}
+							]
+						},
+						{
+							"name": "constant.character.escape.ODL",
+							"match": "\\\\."
+						}
+					]
+				}
+			]
+		},
+		"arrays": {
+			"patterns": [
+				{
+					"name": "meta.array.ODL",
+					"begin": "\\[",
+					"end": "\\]",
+					"patterns": [
+						{
+							"include": "#strings"
+						},
+						{
+							"include": "#numbers"
+						},
+						{
+							"include": "#keywords"
+						},
+						{
+							"include": "#variables"
+						},
+						{
+							"name": "punctuation.separator.array.ODL",
+							"match": ","
+						}
+					]
+				}
+			]
+		},
+		"tables": {
+			"patterns": [
+				{
+					"name": "meta.table.ODL",
+					"begin": "\\{",
+					"end": "\\}",
+					"patterns": [
+						{
+							"name": "meta.table.key-value.ODL",
+							"begin": "([a-zA-Z_][a-zA-Z0-9_\\-]*|[\"'][^\"']*[\"'])\\s*=",
+							"beginCaptures": {
+								"1": {
+									"name": "variable.other.table.key.ODL"
+								}
+							},
+							"end": "(?=,|\\})",
+							"patterns": [
+								{
+									"include": "#strings"
+								},
+								{
+									"include": "#numbers"
+								},
+								{
+									"include": "#keywords"
+								},
+								{
+									"include": "#arrays"
+								},
+								{
+									"include": "#tables"
+								},
+								{
+									"include": "#variables"
+								}
+							]
+						},
+						{
+							"name": "punctuation.separator.table.ODL",
+							"match": ","
+						}
+					]
+				}
+			]
+		},
+		"functions": {
+			"patterns": [
+				{
+					"name": "meta.function-call.ODL",
+					"match": "\\b([a-zA-Z_][a-zA-Z0-9_\\-]*)\\s*\\(",
+					"captures": {
+						"1": {
+							"name": "entity.name.function.ODL"
+						}
+					}
+				},
+				{
+					"name": "meta.function-call.no-parens.ODL",
+					"match": "\\bcall\\s+([a-zA-Z_][a-zA-Z0-9_\\-]*)",
+					"captures": {
+						"1": {
+							"name": "entity.name.function.ODL"
+						}
+					}
+				},
+				{
+					"name": "meta.entry-point.ODL",
+					"match": "\\bentry-point\\s+([a-zA-Z_][a-zA-Z0-9_\\-]*)\\.([a-zA-Z_][a-zA-Z0-9_\\-]*)",
+					"captures": {
+						"1": {
+							"name": "variable.other.module.ODL"
+						},
+						"2": {
+							"name": "entity.name.function.ODL"
+						}
+					}
+				},
+				{
+					"name": "meta.instance-add.ODL",
+					"match": "\\binstance\\s+add",
+					"captures": {
+						"0": {
+							"name": "keyword.control.instance.ODL"
+						}
+					}
+				}
+			]
+		},
+		"variables": {
+			"patterns": [
+				{
+					"name": "variable.other.config.ODL",
+					"match": "\\$\\{[^}]*\\}"
+				},
+				{
+					"name": "variable.other.env.ODL",
+					"match": "\\$\\([^)]*\\)"
+				}
+			]
+		},
+		"operators": {
+			"patterns": [
+				{
+					"name": "keyword.operator.assignment.ODL",
+					"match": "="
+				},
+				{
+					"name": "keyword.operator.arithmetic.ODL",
+					"match": "\\+|-|\\*|/|%"
+				},
+				{
+					"name": "keyword.operator.logical.ODL",
+					"match": "\\b!\\b|&&|\\|\\||\\?"
+				},
+				{
+					"name": "keyword.operator.bitwise.ODL",
+					"match": "&|\\||\\^|~"
+				},
+				{
+					"name": "keyword.operator.comparison.ODL",
+					"match": "==|!=|<=|>=|<|>"
+				},
+				{
+					"name": "punctuation.separator.ODL",
+					"match": ";|,|\\."
+				},
+				{
+					"name": "punctuation.definition.resolver.ODL",
+					"match": "<!|!>"
+				},
+				{
+					"name": "punctuation.bracket.round.ODL",
+					"match": "\\(|\\)"
+				},
+				{
+					"name": "punctuation.bracket.square.ODL",
+					"match": "\\[|\\]"
+				}
+			]
+		},
+		"numbers": {
+			"patterns": [
+				{
+					"name": "constant.numeric.hex.ODL",
+					"match": "\\b0[xX][0-9a-fA-F]+\\b"
+				},
+				{
+					"name": "constant.numeric.octal.ODL",
+					"match": "\\b0[0-7]+\\b"
+				},
+				{
+					"name": "constant.numeric.binary.ODL",
+					"match": "\\b0[bB][01]+\\b"
+				},
+				{
+					"name": "constant.numeric.decimal.ODL",
+					"match": "\\b\\d+\\b"
+				},
+				{
+					"name": "constant.numeric.float.ODL",
+					"match": "\\b\\d+\\.\\d+\\b"
 				}
 			]
 		}
 	},
-	"scopeName": "ip-manager.odl"
+	"scopeName": "source.ODL"
 }
