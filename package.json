@@ -1,25 +1,46 @@
 {
   "name": "ODL",
   "displayName": "ODL",
-  "description": "ODL Plugin",
+  "description": "ODL (Object Definition Language) Plugin - Syntax highlighting and code snippets for ODL files",
   "version": "0.0.1",
+  "publisher": "your-publisher-name",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-repo/odl-vscode"
+  },
   "engines": {
     "vscode": "^1.107.0"
   },
   "categories": [
     "Programming Languages"
   ],
+  "keywords": [
+    "ODL",
+    "Object Definition Language",
+    "Ambiorix",
+    "TR-181",
+    "syntax highlighting"
+  ],
   "contributes": {
     "languages": [{
       "id": "ODL",
-      "aliases": ["ODL", "ODL"],
-      "extensions": [".odl",".odl.uc"],
-      "configuration": "./language-configuration.json"
+      "aliases": ["ODL", "odl"],
+      "extensions": [".odl", ".odl.uc"],
+      "configuration": "./language-configuration.json",
+      "icon": {
+        "light": "./doc/icon-light.png",
+        "dark": "./doc/icon-dark.png"
+      }
     }],
     "grammars": [{
       "language": "ODL",
       "scopeName": "ip-manager.odl",
       "path": "./syntaxes/ODL.tmLanguage.json"
+    }],
+    "snippets": [{
+      "language": "ODL",
+      "path": "./snippets/odl.json"
     }]
-  }
+  },
+  "icon": "doc/icon.png"
 }

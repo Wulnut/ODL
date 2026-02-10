@@ -1,0 +1,232 @@
+/****************************************************************************
+**
+** ODL Syntax Highlighting Test File
+** This file tests various ODL language features
+**
+****************************************************************************/
+
+// Single line comment
+/* Multi-line comment
+   spanning multiple lines */
+
+%config {
+    name = "test_module";
+    version = "1.0.0";
+    storage-path = "${rw_data_path}/${name}/";
+    definition_file = "${name}_definition.odl";
+
+    // Environment variable reference
+    home_dir = "$(HOME)";
+
+    // Nested configuration
+    sahtrace = {
+        type = "syslog",
+        level = 500
+    };
+
+    trace-zones = ["Zone1", "Zone2"];
+    system-signals = [17, 18];
+
+    %global auto-restart = true;
+}
+
+import "test-library.so" as "testlib";
+import "another-lib.so" as "anotherlib" RTLD_NOW RTLD_GLOBAL;
+
+#include "mod_sahtrace.odl";
+include "${definition_file}";
+?include "${name}_custom.odl":"${name}_defaults.odl";
+
+requires "NetModel.Interface.";
+requires "Device.WiFi.";
+
+%define {
+    // Simple object definition
+    object TestObject {
+        string Name = "Default Name";
+        bool Enable = true;
+        uint32 Counter = 0;
+    }
+
+    // Persistent multi-instance object
+    %persistent object Device {
+        %read-only string Manufacturer;
+        %read-only string ModelName;
+        %persistent bool Enable = false;
+
+        // Multi-instance child object
+        %persistent object Interface[] {
+            on action destroy call cleanup_interface;
+
+            %unique %key string Alias;
+            %read-only string Status = "Down" {
+                on action validate call check_enum
+                    ["Up", "Down", "Unknown", "Error"];
+            }
+
+            %persistent bool Enable = false;
+            %persistent string Name = "";
+            %persistent uint32 MTU = 1500;
+            %read-only uint32 BytesSent = 0;
+            %read-only uint32 BytesReceived = 0;
+            %read-only datetime LastChange;
+
+            // IPv4 addresses
+            object IPv4Address[] {
+                %unique %key string Alias;
+                %persistent string IPAddress;
+                %persistent string SubnetMask;
+                bool Enable = true;
+            }
+
+            // IPv6 addresses
+            object IPv6Address[] {
+                %unique %key string Alias;
+                %persistent string IPAddress;
+                %persistent uint32 PrefixLength = 64;
+            }
+
+            // Function definitions
+            void reset_counters();
+            uint32 get_status();
+            string get_info(string info_type);
+        }
+
+        // Statistics object
+        object Stats {
+            %read-only uint32 TotalInterfaces;
+            %read-only uint32 ActiveInterfaces;
+            %counter uint64 TotalBytesSent;
+            %counter uint64 TotalBytesReceived;
+        }
+    }
+
+    // MIB definition
+    mib ExtraInfo {
+        object Details {
+            string Description;
+            string Vendor;
+        }
+    }
+
+    // Extend object using MIB
+    select Device.Interface {
+        extend using mib ExtraInfo;
+
+        %persistent bool CustomFlag = false;
+    }
+
+    // Template object
+    %template object TemplateObject {
+        string CommonParam;
+    }
+}
+
+%populate {
+    // Application startup
+    on event "app:start" call app_start;
+
+    // Object change events with filters
+    on event "dm:object-changed" call device_enable_changed
+        filter 'path == "Device." && contains("parameters.Enable")';
+
+    on event "dm:object-changed" call interface_changed
+        filter 'path matches "Device\\.Interface\\.[0-9]+\\." &&
+                (contains("parameters.Enable") or
+                 contains("parameters.MTU"))';
+
+    // Instance added/removed events
+    on event "dm:instance-added" call interface_added
+        filter 'path == "Device.Interface."';
+
+    on event "dm:instance-removed" call interface_removed
+        filter 'path == "Device.Interface."';
+
+    // Parameter validation
+    on event "dm:object-changed" call validate_mtu
+        filter 'path matches "Device\\.Interface\\.[0-9]+\\." and
+                contains("parameters.MTU") and
+                parameters.MTU >= 576 and parameters.MTU <= 9000';
+
+    // Populate default instances
+    object Device {
+        Enable = true;
+        Manufacturer = "Test Manufacturer";
+        ModelName = "Test Model";
+
+        object Interface[] {
+            instance add(0, "lan0") {
+                Alias = "LAN";
+                Name = "eth0";
+                Enable = true;
+                MTU = 1500;
+
+                object IPv4Address[] {
+                    instance add(0, "primary") {
+                        Alias = "Primary";
+                        IPAddress = "192.168.1.1";
+                        SubnetMask = "255.255.255.0";
+                    }
+                }
+            }
+
+            instance add(1, "wan0") {
+                Alias = "WAN";
+                Name = "eth1";
+                Enable = true;
+                MTU = 1492;
+            }
+        }
+    }
+}
+
+%define {
+    // Entry points
+    entry-point testlib.main;
+}
+
+// Test various data types
+%define {
+    object DataTypes {
+        // Numeric types
+        uint8 byte_value = 255;
+        uint16 short_value = 65535;
+        uint32 int_value = 4294967295;
+        uint64 long_value = 18446744073709551615;
+        int8 signed_byte = -128;
+        int16 signed_short = -32768;
+        int32 signed_int = -2147483648;
+        int64 signed_long = -9223372036854775808;
+
+        // Floating point
+        float float_value = 3.14;
+        double double_value = 3.141592653589793;
+
+        // String variants
+        string normal_string = "Hello World";
+        csv_string comma_separated = "value1,value2,value3";
+        ssv_string space_separated = "value1 value2 value3";
+
+        // Special types
+        datetime timestamp;
+        fd file_descriptor;
+        bool boolean_value = false;
+
+        // Complex types
+        variant any_type;
+        list string_list;
+        htable hash_table;
+    }
+}
+
+// Test operators and expressions
+%populate {
+    on event "test:expression" call test_handler
+        filter 'value == 10 && status != "error" &&
+                counter >= 100 && counter <= 1000 &&
+                (type == "A" || type == "B") &&
+                not disabled';
+}
+
+print "Configuration loaded: ${name} v${version}";
+print "Storage path: ${storage-path}";

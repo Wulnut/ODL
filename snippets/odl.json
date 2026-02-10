@@ -1,0 +1,258 @@
+{
+	"Config Section": {
+		"prefix": "config",
+		"body": [
+			"%config {",
+			"\t${1:name} = \"${2:value}\";",
+			"\t$0",
+			"}"
+		],
+		"description": "Create a %config section"
+	},
+	"Define Section": {
+		"prefix": "define",
+		"body": [
+			"%define {",
+			"\t$0",
+			"}"
+		],
+		"description": "Create a %define section"
+	},
+	"Populate Section": {
+		"prefix": "populate",
+		"body": [
+			"%populate {",
+			"\t$0",
+			"}"
+		],
+		"description": "Create a %populate section"
+	},
+	"Object Definition": {
+		"prefix": "object",
+		"body": [
+			"object ${1:ObjectName} {",
+			"\t$0",
+			"}"
+		],
+		"description": "Define an object"
+	},
+	"Multi-Instance Object": {
+		"prefix": "object[]",
+		"body": [
+			"object ${1:ObjectName}[] {",
+			"\t$0",
+			"}"
+		],
+		"description": "Define a multi-instance object"
+	},
+	"Persistent Object": {
+		"prefix": "pobject",
+		"body": [
+			"%persistent object ${1:ObjectName} {",
+			"\t$0",
+			"}"
+		],
+		"description": "Define a persistent object"
+	},
+	"String Parameter": {
+		"prefix": "string",
+		"body": [
+			"string ${1:ParameterName}${2: = \"${3:default_value}\"};"
+		],
+		"description": "Define a string parameter"
+	},
+	"Boolean Parameter": {
+		"prefix": "bool",
+		"body": [
+			"bool ${1:ParameterName}${2: = ${3|true,false|}};$0"
+		],
+		"description": "Define a boolean parameter"
+	},
+	"Integer Parameter": {
+		"prefix": "uint32",
+		"body": [
+			"uint32 ${1:ParameterName}${2: = ${3:0}};$0"
+		],
+		"description": "Define a uint32 parameter"
+	},
+	"Persistent String": {
+		"prefix": "pstring",
+		"body": [
+			"%persistent string ${1:ParameterName}${2: = \"${3:default_value}\"};"
+		],
+		"description": "Define a persistent string parameter"
+	},
+	"Persistent Boolean": {
+		"prefix": "pbool",
+		"body": [
+			"%persistent bool ${1:ParameterName}${2: = ${3|true,false|}};$0"
+		],
+		"description": "Define a persistent boolean parameter"
+	},
+	"Persistent Integer": {
+		"prefix": "puint32",
+		"body": [
+			"%persistent uint32 ${1:ParameterName}${2: = ${3:0}};$0"
+		],
+		"description": "Define a persistent uint32 parameter"
+	},
+	"Read-Only Parameter": {
+		"prefix": "readonly",
+		"body": [
+			"%read-only ${1:type} ${2:ParameterName}${3: = ${4:value}};$0"
+		],
+		"description": "Define a read-only parameter"
+	},
+	"Unique Key": {
+		"prefix": "key",
+		"body": [
+			"%unique %key string ${1:KeyName};"
+		],
+		"description": "Define a unique key parameter"
+	},
+	"Function Definition": {
+		"prefix": "function",
+		"body": [
+			"${1:void} ${2:function_name}(${3:});$0"
+		],
+		"description": "Define a function"
+	},
+	"Import Statement": {
+		"prefix": "import",
+		"body": [
+			"import \"${1:library.so}\" as \"${2:alias}\";"
+		],
+		"description": "Import a shared library"
+	},
+	"Include Statement": {
+		"prefix": "include",
+		"body": [
+			"include \"${1:file.odl}\";"
+		],
+		"description": "Include an ODL file"
+	},
+	"Optional Include": {
+		"prefix": "#include",
+		"body": [
+			"#include \"${1:file.odl}\";"
+		],
+		"description": "Optional include of an ODL file"
+	},
+	"Conditional Include": {
+		"prefix": "?include",
+		"body": [
+			"?include \"${1:primary.odl}\":\"${2:fallback.odl}\";"
+		],
+		"description": "Conditional include with fallback"
+	},
+	"Requires Statement": {
+		"prefix": "requires",
+		"body": [
+			"requires \"${1:ObjectPath.}\";"
+		],
+		"description": "Require a data model object"
+	},
+	"On Event": {
+		"prefix": "onevent",
+		"body": [
+			"on event \"${1:event-name}\" call ${2:handler_function};$0"
+		],
+		"description": "Define an event handler"
+	},
+	"On Event with Filter": {
+		"prefix": "oneventfilter",
+		"body": [
+			"on event \"${1:event-name}\" call ${2:handler_function}",
+			"\tfilter '${3:filter_expression}';$0"
+		],
+		"description": "Define an event handler with filter"
+	},
+	"On Action": {
+		"prefix": "onaction",
+		"body": [
+			"on action ${1:action_name} call ${2:handler_function};$0"
+		],
+		"description": "Define an action handler"
+	},
+	"Entry Point": {
+		"prefix": "entrypoint",
+		"body": [
+			"entry-point ${1:module}.${2:function_name};"
+		],
+		"description": "Define an entry point"
+	},
+	"MIB Definition": {
+		"prefix": "mib",
+		"body": [
+			"mib ${1:MibName} {",
+			"\t$0",
+			"}"
+		],
+		"description": "Define a MIB (Modular Information Block)"
+	},
+	"Extend Using MIB": {
+		"prefix": "extend",
+		"body": [
+			"extend using mib ${1:MibName};"
+		],
+		"description": "Extend object using a MIB"
+	},
+	"Select Object": {
+		"prefix": "select",
+		"body": [
+			"select ${1:Object.Path} {",
+			"\t$0",
+			"}"
+		],
+		"description": "Select and extend an existing object"
+	},
+	"Config Variable Reference": {
+		"prefix": "${",
+		"body": [
+			"\\${${1:variable_name}}"
+		],
+		"description": "Reference a config variable"
+	},
+	"Environment Variable Reference": {
+		"prefix": "$(",
+		"body": [
+			"\\$(${1:ENV_VAR})"
+		],
+		"description": "Reference an environment variable"
+	},
+	"Comment Block": {
+		"prefix": "/**",
+		"body": [
+			"/**",
+			" * ${1:Description}",
+			" */"
+		],
+		"description": "Insert a block comment"
+	},
+	"ODL File Template": {
+		"prefix": "odltemplate",
+		"body": [
+			"/****************************************************************************",
+			"**",
+			"** ${1:Description}",
+			"**",
+			"****************************************************************************/",
+			"",
+			"%config {",
+			"\tname = \"${2:module_name}\";",
+			"\t$0",
+			"}",
+			"",
+			"import \"${3:library.so}\" as \"\\${name}\";",
+			"",
+			"%define {",
+			"\t",
+			"}",
+			"",
+			"%populate {",
+			"\t",
+			"}"
+		],
+		"description": "Complete ODL file template"
+	}
+}

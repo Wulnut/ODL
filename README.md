@@ -1,65 +1,172 @@
-# ODL README
+# ODL Language Support for VSCode
 
-This is the README for your extension "ODL". After writing up a brief description, we recommend including the following sections.
+这是一个为 Visual Studio Code 提供 ODL (Object Definition Language) 语言支持的扩展插件。
 
-## Features
+## 功能特性
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+### 语法高亮
 
-For example if there is an image subfolder under your extension project workspace:
+该扩展为 ODL 文件提供了全面的语法高亮支持，包括：
 
-\!\[feature X\]\(images/feature-x.png\)
+- **注释**: 支持单行注释 (`//`) 和多行注释 (`/* */`)
+- **章节关键字**: `%config`, `%define`, `%populate`
+- **结构关键字**: `object`, `mib`, `select`, `extend`, `using`
+- **导入/包含**: `import`, `include`, `#include`, `&include`, `?include`, `requires`
+- **属性修饰符**: `%persistent`, `%read-only`, `%unique`, `%key`, `%global`, 等
+- **数据类型**: `string`, `bool`, `uint32`, `int32`, `datetime`, `double`, `float`, 等
+- **事件和动作**: `on event`, `on action`, `call`, `filter`
+- **配置变量**: `${config_option}` 和环境变量 `$(ENV_VAR)`
+- **运算符**: 逻辑运算符、比较运算符、算术运算符
+- **常量**: `true`, `false`, `null`
+- **函数调用**: 自动识别函数名称
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+### 代码片段 (Snippets)
 
-## Requirements
+提供 30+ 个常用的代码片段，快速插入：
+- 章节定义 (`config`, `define`, `populate`)
+- 对象定义 (`object`, `object[]`, `pobject`, `mib`)
+- 参数定义 (`string`, `bool`, `uint32`, `pstring`, `pbool`, `readonly`, `key`)
+- 导入语句 (`import`, `include`, `#include`, `?include`)
+- 事件处理 (`onevent`, `oneventfilter`, `onaction`)
+- 完整文件模板 (`odltemplate`)
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+详细的代码片段列表和使用方法请查看 [使用指南](doc/usage-guide.md)。
 
-## Extension Settings
+### 代码编辑功能
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+- **自动补全括号**: 自动匹配 `{}`, `[]`, `()`, `""`, `''`
+- **代码折叠**: 支持折叠 `%config`, `%define`, `%populate`, `object`, `mib` 等代码块
+- **智能缩进**: 自动缩进代码块
+- **注释快捷键**: 使用 `Cmd+/` (macOS) 或 `Ctrl+/` (Windows/Linux) 快速注释/取消注释
 
-For example:
+## 支持的文件扩展名
 
-This extension contributes the following settings:
+- `.odl`
+- `.odl.uc`
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+## 快速开始
 
-## Known Issues
+### 安装
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+1. 下载或克隆此仓库
+2. 将文件夹复制到 VSCode 扩展目录:
+   - Windows: `%USERPROFILE%\.vscode\extensions`
+   - macOS/Linux: `~/.vscode/extensions`
+3. 重新加载 VSCode
 
-## Release Notes
+或者使用命令行安装:
 
-Users appreciate release notes as you update your extension.
+```bash
+cd /path/to/this/extension
+code --install-extension .
+```
 
-### 1.0.0
+### 使用
 
-Initial release of ...
+1. 打开或创建一个 `.odl` 文件
+2. 输入代码片段前缀（如 `odltemplate`）并按 `Tab` 键
+3. 享受语法高亮和智能编辑功能
 
-### 1.0.1
+## 示例代码
 
-Fixed issue #.
+```odl
+%config {
+    name = "ssh_server";
+    storage-path = "${rw_data_path}/${name}/";
+}
 
-### 1.1.0
+import "amx-ssh-server.so" as "${name}";
 
-Added features X, Y, and Z.
+%define {
+    %persistent object SSH {
+        %persistent bool Enable = true;
+
+        %persistent object Server[] {
+            %unique %key string Alias;
+            %read-only string Status = "Disabled";
+            %persistent uint32 Port = 22;
+
+            uint32 close_sessions();
+        }
+    }
+}
+
+%populate {
+    on event "app:start" call app_start;
+
+    on event "dm:object-changed" call ssh_toggle
+        filter 'path == "SSH." && contains("parameters.Enable")';
+}
+```
+
+## ODL 语言简介
+
+ODL (Object Definition Language) 是一种用于定义数据模型的领域特定语言，主要用于 Ambiorix 框架。它提供了一种简单的方式来定义层次化的对象树，每个对象可以包含参数和函数。
+
+### 主要特性
+
+- 支持定义层次化的数据模型
+- 可以绑定函数实现
+- 支持事件处理机制
+- 支持配置选项和环境变量
+- 兼容 BBF TR-181 数据模型规范
+
+## 文档
+
+- [使用指南](doc/usage-guide.md) - 详细的使用说明和技巧
+- [ODL 语言规范](doc/odl.md) - 完整的 ODL 语言文档
+- [更新日志](CHANGELOG.md) - 版本更新历史
+
+## 开发和调试
+
+1. 在 VSCode 中打开此项目文件夹
+2. 按 `F5` 启动扩展开发主机
+3. 在新窗口中打开 `.odl` 文件进行测试
+4. 查看 `test_syntax.odl` 文件以测试所有语法高亮功能
+
+## 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+### 开发环境设置
+
+```bash
+# 克隆仓库
+git clone <repository-url>
+cd ODL
+
+# 在 VSCode 中打开
+code .
+
+# 按 F5 启动调试
+```
+
+## 更新日志
+
+### 0.0.1 (2024-02-10)
+
+- ✨ 初始版本发布
+- 🎨 完整的 ODL 语法高亮支持
+- 📝 30+ 个代码片段
+- 🔧 支持代码折叠和自动缩进
+- 📖 完整的文档和使用指南
+
+查看 [CHANGELOG.md](CHANGELOG.md) 了解更多详情。
+
+## 参考资料
+
+- [Ambiorix ODL 文档](doc/odl.md)
+- [prpl Foundation](https://gitlab.com/prpl-foundation/components/ambiorix)
+- [BBF TR-181 规范](https://usp-data-models.broadband-forum.org/)
+
+## 许可证
+
+请参考项目中的相关许可证文件。
+
+## 致谢
+
+感谢 Ambiorix 项目和 prpl Foundation 提供的优秀框架和文档。
 
 ---
 
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+**享受 ODL 编程的乐趣！** 🚀

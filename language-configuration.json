@@ -1,8 +1,8 @@
 {
     "comments": {
-        // symbol used for single line comment. Remove this entry if your language does not support line comments
+        // symbol used for single line comment
         "lineComment": "//",
-        // symbols used for start and end a block comment. Remove this entry if your language does not support block comments
+        // symbols used for start and end a block comment
         "blockComment": [ "/*", "*/" ]
     },
     // symbols used as brackets
@@ -26,5 +26,19 @@
         ["(", ")"],
         ["\"", "\""],
         ["'", "'"]
-    ]
+    ],
+    // folding markers
+    "folding": {
+        "markers": {
+            "start": "^\\s*(%config|%define|%populate|object|mib|select)\\s*\\{",
+            "end": "^\\s*\\}"
+        }
+    },
+    // word pattern for word navigation and selection
+    "wordPattern": "(-?\\d*\\.\\d\\w*)|([^\\`\\~\\!\\@\\#\\%\\^\\&\\*\\(\\)\\-\\=\\+\\[\\{\\]\\}\\\\\\|\\;\\:\\'\\\"\\,\\.\\<\\>\\/\\?\\s]+)",
+    // indentation rules
+    "indentationRules": {
+        "increaseIndentPattern": "^.*\\{[^}]*$",
+        "decreaseIndentPattern": "^\\s*\\}"
+    }
 }

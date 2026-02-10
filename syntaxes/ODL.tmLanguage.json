@@ -3,27 +3,205 @@
 	"name": "ODL",
 	"patterns": [
 		{
+			"include": "#comments"
+		},
+		{
+			"include": "#sections"
+		},
+		{
 			"include": "#keywords"
 		},
 		{
+			"include": "#attributes"
+		},
+		{
+			"include": "#types"
+		},
+		{
+			"include": "#constants"
+		},
+		{
 			"include": "#strings"
+		},
+		{
+			"include": "#numbers"
+		},
+		{
+			"include": "#operators"
+		},
+		{
+			"include": "#variables"
+		},
+		{
+			"include": "#paths"
+		},
+		{
+			"include": "#functions"
 		}
 	],
 	"repository": {
+		"comments": {
+			"patterns": [
+				{
+					"name": "comment.line.double-slash.ODL",
+					"match": "//.*$"
+				},
+				{
+					"name": "comment.block.ODL",
+					"begin": "/\\*",
+					"end": "\\*/"
+				}
+			]
+		},
+		"sections": {
+			"patterns": [
+				{
+					"name": "keyword.control.section.ODL",
+					"match": "\\%(?:config|define|populate)\\b"
+				}
+			]
+		},
 		"keywords": {
-			"patterns": [{
-				"name": "keyword.control.ODL",
-				"match": "\\b(if|while|for|return)\\b"
-			}]
+			"patterns": [
+				{
+					"name": "keyword.control.import.ODL",
+					"match": "\\b(import|include|#include|&include|\\?include|requires|print)\\b"
+				},
+				{
+					"name": "keyword.control.structure.ODL",
+					"match": "\\b(object|mib|select|extend|using)\\b"
+				},
+				{
+					"name": "keyword.control.action.ODL",
+					"match": "\\b(on\\s+(?:event|action)|call|filter|entry-point)\\b"
+				},
+				{
+					"name": "keyword.control.other.ODL",
+					"match": "\\b(as|if|while|for|return|and|or|not|contains|matches)\\b"
+				}
+			]
+		},
+		"attributes": {
+			"patterns": [
+				{
+					"name": "storage.modifier.ODL",
+					"match": "\\%(?:persistent|read-only|protected|private|template|instance|unique|key|global|in|out|strict|mutable|immutable|counter)\\b"
+				}
+			]
+		},
+		"types": {
+			"patterns": [
+				{
+					"name": "storage.type.ODL",
+					"match": "\\b(string|bool|uint8|uint16|uint32|uint64|int8|int16|int32|int64|double|float|datetime|fd|csv_string|ssv_string|void|variant|list|htable)\\b"
+				}
+			]
+		},
+		"constants": {
+			"patterns": [
+				{
+					"name": "constant.language.boolean.ODL",
+					"match": "\\b(true|false|null)\\b"
+				}
+			]
 		},
 		"strings": {
-			"name": "string.quoted.double.ODL",
-			"begin": "\"",
-			"end": "\"",
+			"patterns": [
+				{
+					"name": "string.quoted.double.ODL",
+					"begin": "\"",
+					"end": "\"",
+					"patterns": [
+						{
+							"include": "#string-content"
+						}
+					]
+				},
+				{
+					"name": "string.quoted.single.ODL",
+					"begin": "'",
+					"end": "'",
+					"patterns": [
+						{
+							"include": "#string-content"
+						}
+					]
+				}
+			]
+		},
+		"string-content": {
 			"patterns": [
 				{
 					"name": "constant.character.escape.ODL",
 					"match": "\\\\."
+				},
+				{
+					"name": "variable.other.config.ODL",
+					"match": "\\$\\{[^}]+\\}"
+				},
+				{
+					"name": "variable.other.env.ODL",
+					"match": "\\$\\([^)]+\\)"
+				}
+			]
+		},
+		"numbers": {
+			"patterns": [
+				{
+					"name": "constant.numeric.hex.ODL",
+					"match": "\\b0[xX][0-9a-fA-F]+\\b"
+				},
+				{
+					"name": "constant.numeric.decimal.ODL",
+					"match": "\\b\\d+(\\.\\d+)?([eE][+-]?\\d+)?\\b"
+				}
+			]
+		},
+		"operators": {
+			"patterns": [
+				{
+					"name": "keyword.operator.logical.ODL",
+					"match": "(==|!=|<=|>=|<|>|&&|\\|\\|)"
+				},
+				{
+					"name": "keyword.operator.assignment.ODL",
+					"match": "="
+				},
+				{
+					"name": "keyword.operator.arithmetic.ODL",
+					"match": "(\\+|\\-|\\*|\\/|\\%)"
+				}
+			]
+		},
+		"variables": {
+			"patterns": [
+				{
+					"name": "variable.other.config.ODL",
+					"match": "\\$\\{[^}]+\\}"
+				},
+				{
+					"name": "variable.other.env.ODL",
+					"match": "\\$\\([^)]+\\)"
+				}
+			]
+		},
+		"paths": {
+			"patterns": [
+				{
+					"name": "string.regexp.ODL",
+					"match": "\"[A-Z][A-Za-z0-9_]*(\\.[A-Z][A-Za-z0-9_]*)*(\\[\\d*\\])?\\.?\""
+				}
+			]
+		},
+		"functions": {
+			"patterns": [
+				{
+					"name": "entity.name.function.ODL",
+					"match": "\\b[a-z_][a-zA-Z0-9_]*(?=\\s*\\()"
+				},
+				{
+					"name": "support.function.builtin.ODL",
+					"match": "\\b(check_enum|check_range|check_is_in|check_minimum|check_maximum|print_event|validate|destroy|cleanup_server|app_start)\\b"
 				}
 			]
 		}
